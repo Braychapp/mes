@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <ctype.h>
 #include "common.h"
-int add_test(int x, int y);
+int add_test(int x, int y, uint32_t delay, int count);
 void AddTest(int action)
 {
 if(action==CMD_SHORT_HELP) return;
@@ -16,6 +16,49 @@ printf("Addition Test\n\n"
 );
 return;
 }
-printf("add_test returned: %d\n", add_test(99, 87) );
+//creating a variable of type uint32_t called delay and a regular int called fetch_status
+uint32_t delay;
+int fetch_status;
+fetch_status = fetch_uint32_arg(&delay);
+if(fetch_status) {
+// Use a default delay value
+delay = 0xFFFFFF;
 }
-ADD_CMD("add", AddTest,"Test the new add function")
+// When we call our function, pass the delay value.
+// printf(“<<< here is where we call add_test – can you add a third parameter? >>>”);
+//r0 = 98
+//r1 = 87
+//r2 = 0xFFFFFF
+//r3 = 20
+//r3 needs to be 20 because to toggle on the LED is one and to turn it off is also 1 so each on / off counts for 2
+printf("add_test returned: %d\nDelay:", add_test(98, 87, delay, 20));
+}
+ADD_CMD("add", AddTest,"Test the new add function");
+int bc_led_demo_a2(int count, int delay);
+void _bc_A2(int action)
+{
+if(action==CMD_SHORT_HELP) return;
+if(action==CMD_LONG_HELP) {
+printf("Addition Test\n\n"
+"This command tests new addition function\n"
+);
+return;
+}
+//creating a variable of type uint32_t called delay and a regular int called fetch_status
+uint32_t delay;
+int fetch_status;
+fetch_status = fetch_uint32_arg(&delay);
+if(fetch_status) {
+// Use a default delay value
+delay = 0xFFFFFF;
+}
+// When we call our function, pass the delay value.
+// printf(“<<< here is where we call add_test – can you add a third parameter? >>>”);
+//r0 = 98
+//r1 = 87
+//r2 = 0xFFFFFF
+//r3 = 20
+//r3 needs to be 20 because to toggle on the LED is one and to turn it off is also 1 so each on / off counts for 2
+printf("add_test returned: %d\nDelay:", add_test(98, 87, delay, 20));
+}
+ADD_CMD("led", _bc_A2, "Test the _bc_A2 function");
