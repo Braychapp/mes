@@ -1,6 +1,9 @@
 /*
-* C to assembler menu hook
-*
+* FILE : bc_hook.c
+* PROJECT : A2 Calling Functions
+* PROGRAMMER : Brayden Chapple
+* FIRST VERSION : 2022-10-12
+* DESCRIPTION : This program was created to turn on and off all the lights on the board as many times as the user wants at the speed the user wants
 */
 #include <stdio.h>
 #include <stdint.h>
@@ -33,12 +36,19 @@ delay = 0xFFFFFF;
 //r3 needs to be 20 because to toggle on the LED is one and to turn it off is also 1 so each on / off counts for 2
 printf("add_test returned: %d\n", add_test(98, 87, delay, 20));
 }
-ADD_CMD("ads", AddTest,"Test the new add function");
+ADD_CMD("add", AddTest,"Test the new add function");
 
 
 
 
 int bc_led_demo_a2(int count, int delay);
+/*
+* Function: _bc_A2
+* Description: This function is used to call the function from within my assembly code
+* It also will
+* Parameters: none
+* Returns: nothing
+*/
 void _bc_A2(int action)
 {
 if(action==CMD_SHORT_HELP) return;
@@ -48,13 +58,26 @@ printf("LED DEMO\n\n"
 );
 return;
 }
-uint32_t user_input;
-int fetch_status;
-fetch_status = fetch_uint32_arg(&user_input);
-if(fetch_status) {
+
+
+uint32_t count;
+int fetch_status2;
+fetch_status2 = fetch_uint32_arg(&count);
+if(fetch_status2) {
 // Use a default value
-user_input = 0xFFFFFF;
+count = 1;
 }
-printf("bc_led_demo_a2 has finished, if 0 it has worked correctly: %d", bc_led_demo_a2(2, 0xFFFFFF)); //0 is the counter and delay is the delay from the user
+
+uint32_t led_delay;
+int fetch_status1;
+fetch_status1 = fetch_uint32_arg(&led_delay);
+if(fetch_status1) {
+// Use a default value
+led_delay = 0xFFFFFF;
 }
-ADD_CMD("add", _bc_A2, "Test the _bc_A2 function");
+
+
+
+printf("bc_led_demo_a2 has finished. Here is register 0:%d \n", bc_led_demo_a2(count, led_delay)); //0 is the counter and delay is the delay from the user
+}
+ADD_CMD("demo", _bc_A2, "Test the _bc_A2 function");

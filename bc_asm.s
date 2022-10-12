@@ -1,3 +1,12 @@
+@
+@FILE : bc_asm.s
+@PROJECT : A2 Calling Functions
+@PROGRAMMER : Brayden Chapple
+@FIRST VERSION : 2022-10-12
+@DESCRIPTION : This program was created to turn on and off all the lights on the board as many times as the user wants at the speed the user wants
+@
+
+
 @ Test code for my own new function called from C
 @ This is a comment. Anything after an @ symbol is ignored.
 @@ This is also a comment. Some people use double @@ symbols.
@@ -111,12 +120,27 @@ end_loop:
 .type bc_led_demo_a2, %function @ Declares that the symbol is a function (not strictly required)
 @ Function Declaration : int bc_led_demo_a2(int x, int y)
 
+
+@
+@Function: bc_led_demo_a2
+@Description: This function is mostly used to push the registers that I will be using in led_delay
+@then it calls led_delay
+@Parameters: none
+@Returns: nothing
+@
 bc_led_demo_a2:
 @r0 is count and r1 is delay
 push {r0-r7, lr} @pushing all available registers because I don't know what I'll end up using
 
 bl led_delay
 
+@
+@Function: led_delay
+@Description: This function is essentially my main(), where my program is going to run from once it is called from the minicom window.
+@it turns on and off all the lights on the board one after another as many times as the user wants and as fast as the user wants
+@Parameters: none
+@Returns: nothing
+@
 led_delay:
     mov r2, #0 @r2 is used to see if an led is on or off, if it's an even number the led should be off and if it's odd it should be on
     mov r3, r1 @moving the delay value to r4
@@ -124,7 +148,8 @@ led_delay:
     mov r5, r0 @moving count into r5
     mov r6, #0 @r6 is going to keep track of how many times we have gone through a complete cycle
     mov r7, #0 @r7 is going to hold which led is supposed to be toggled
-    led_1oop: @looping r5 times
+    bl first_light @turning the light on to start
+    led_1oop: @repeat r5 times
         subs r3, r3, #1
         bge led_1oop
         @loop over
@@ -142,6 +167,13 @@ led_delay:
     bl led_1oop @if the led is toggled on and hasnt been turned off its going to loop again
 
 @used for switching which led is toggled
+
+@
+@Function: else2
+@Description: This function is used for switching which led is going to be toggled next
+@Parameters: none
+@Returns: nothing
+@
 else2:
     add r7, r7, #1 @change which led is being toggled
     mov r2, #0 @move the status of the LED back to being off
@@ -150,22 +182,57 @@ else2:
     bl led_1oop @going back to loop again
 
 @used for adding to the total times that the program has looped
+
+@
+@Function: else1
+@Description: This function is used to add the total times that the program has ran through one cycle
+@then it loops from the beginning again
+@Parameters: none
+@Returns: nothing
+@
 else1:
     add r6, r6, #1 @the program has officially looped and r6 needs to be updated to reflect that
     mov r7, #0 @resetting the number incase there is more than one cycle
     @need to put an if statement to check if the count is the same as the one that the user entered
     bl else3 @going back to the loop
 
+@
+@Function: else3
+@Description: This function is the third else statement to pair with my if statements that I have used in the program
+@it compared r6 to r5 and if they are equal it will exit and if not it will go back and loop from the beginning again
+@Parameters: none
+@Returns: nothing
+@
 else3:
-    cmp r6, r5
-        beq exit
-    mov r2, #0
-    bl led_1oop
+    cmp r6, r5 @compare r6 to r5
+        beq exit @if theyre equal go to exit
+    mov r2, #0 @if theyre not then make r2 0
+    bl led_1oop @go back to the loop
 
-
+@
+@Function: exit
+@Description: This function is used when the program has finished looping and running through itself.
+@it pops all the registers to how they were before entering the main looping function
+@Parameters: none
+@Returns: nothing
+@
 exit:
     pop {r0-r7, lr} @popping off everything
     bx lr @ Return (Branch eXchange) to the address in the link register (lr
+
+
+@
+@Function: first_light
+@Description: This function is used only for the first turning on of light 0 on the board
+@Parameters: none
+@Returns: nothing
+@
+first_light:
+    mov r0, r7 @making r0 the same as r7
+    bl BSP_LED_Toggle @toggling the light
+    add r2, r2, #1 @adding 1 to r2 to tell the program that the light is on
+    bl led_1oop @going back to the loop
+
 
 .size bc_led_demo_a2, .-bc_led_demo_a2 @@ - symbol size (not strictly required, but makes the debugger happy)
 .end
