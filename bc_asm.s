@@ -122,7 +122,7 @@ led_delay:
     mov r3, r1 @moving the delay value to r4
     mov r4, r1 @moving the delay value to r4 for use later when resetting the loop
     mov r5, r0 @moving count into r5
-    mov r6, #0 @r6 is going to keep track of how many times we have looped
+    mov r6, #0 @r6 is going to keep track of how many times we have gone through a complete cycle
     mov r7, #0 @r7 is going to hold which led is supposed to be toggled
     led_1oop: @looping r5 times
         subs r3, r3, #1
@@ -132,6 +132,7 @@ led_delay:
     add r2, r2, #1
     cmp r7, #8
         beq else1
+    mov r0, r7 @update the led to be toggled
     bl BSP_LED_Toggle @calling BSP_LED_Toggle
     mov r3, r4 @moving the delay back into r3 for another loop
     @need to put an if statement inside an if statement here
@@ -143,19 +144,23 @@ led_delay:
 @used for switching which led is toggled
 else2:
     add r7, r7, #1 @change which led is being toggled
-    mov r0, r7 @update the led to be toggled
     mov r2, #0 @move the status of the LED back to being off
+    cmp r7, #8 @comparing again to try and avoid unnessecary loops
+        beq else1
     bl led_1oop @going back to loop again
 
 @used for adding to the total times that the program has looped
 else1:
     add r6, r6, #1 @the program has officially looped and r6 needs to be updated to reflect that
+    mov r7, #0 @resetting the number incase there is more than one cycle
     @need to put an if statement to check if the count is the same as the one that the user entered
     bl else3 @going back to the loop
 
 else3:
     cmp r6, r5
-    beq exit
+        beq exit
+    mov r2, #0
+    bl led_1oop
 
 
 exit:

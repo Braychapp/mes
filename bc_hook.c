@@ -55,6 +55,6 @@ if(fetch_status) {
 // Use a default value
 user_input = 0xFFFFFF;
 }
-printf("bc_led_demo_a2 has finished, if 0 it has worked correctly: %d", bc_led_demo_a2(1, 0xFFFFFF)); //0 is the counter and delay is the delay from the user
+printf("bc_led_demo_a2 has finished, if 0 it has worked correctly: %d", bc_led_demo_a2(2, 0xFFFFFF)); //0 is the counter and delay is the delay from the user
 }
 ADD_CMD("add", _bc_A2, "Test the _bc_A2 function");
