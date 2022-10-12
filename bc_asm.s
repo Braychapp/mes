@@ -118,44 +118,49 @@ push {r0-r7, lr} @pushing all available registers because I don't know what I'll
 bl led_delay
 
 led_delay:
-mov r2, #0 @r2 is used to see if an led is on or off, if it's an even number the led should be off and if it's odd it should be on
-mov r3, r1 @moving the delay value to r4
-mov r4, r1 @moving the delay value to r4 for use later when resetting the loop
-mov r5, r0 @moving count into r5
-mov r6, #0 @r6 is going to keep track of how many times we have looped
-mov r7, #0 @r7 is going to hold which led is supposed to be toggled
-led_1oop: @looping r5 times
-    subs r3, r3, #1
-    bge led_1oop
-    @loop over
-@if r6 is greater than r5
-add r2, r2, #1
-cmp r6, r5 @comparing r6 to r5 to see how many times the loop is supposed to go through
-bgt else1 @else statement in C
-bl BSP_LED_Toggle @calling BSP_LED_Toggle
-mov r3, r4 @moving the delay back into r3 for another loop
-@need to put an if statement inside an if statement here
-cmp r2, #2
-bge else2
-bl led_1oop @if the led is toggled on and hasnt been turned off its going to loop again
+    mov r2, #0 @r2 is used to see if an led is on or off, if it's an even number the led should be off and if it's odd it should be on
+    mov r3, r1 @moving the delay value to r4
+    mov r4, r1 @moving the delay value to r4 for use later when resetting the loop
+    mov r5, r0 @moving count into r5
+    mov r6, #0 @r6 is going to keep track of how many times we have looped
+    mov r7, #0 @r7 is going to hold which led is supposed to be toggled
+    led_1oop: @looping r5 times
+        subs r3, r3, #1
+        bge led_1oop
+        @loop over
+    @if r6 is greater than r5
+    add r2, r2, #1
+    cmp r7, #8
+        beq else1
+    bl BSP_LED_Toggle @calling BSP_LED_Toggle
+    mov r3, r4 @moving the delay back into r3 for another loop
+    @need to put an if statement inside an if statement here
+    cmp r2, #2
+        bge else2
+    mov r0, r7 @make r0 the original number again 
+    bl led_1oop @if the led is toggled on and hasnt been turned off its going to loop again
 
 @used for switching which led is toggled
 else2:
-add r7, r7, #1 @change which led is being toggled
-mov r2, #0 @move the status of the LED back to being off
-bl led_1oop @going back to loop again
+    add r7, r7, #1 @change which led is being toggled
+    mov r0, r7 @update the led to be toggled
+    mov r2, #0 @move the status of the LED back to being off
+    bl led_1oop @going back to loop again
 
 @used for adding to the total times that the program has looped
 else1:
-add r6, r6, #1 @the program has officially looped and r6 needs to be updated to reflect that
-@need to put an if statement to check if the count is the same as the one that the user entered
-cmp r6, r5
-beq exit
-bl led_1oop @going back to the loop
+    add r6, r6, #1 @the program has officially looped and r6 needs to be updated to reflect that
+    @need to put an if statement to check if the count is the same as the one that the user entered
+    bl else3 @going back to the loop
+
+else3:
+    cmp r6, r5
+    beq exit
+
 
 exit:
-pop {r0-r7, lr} @popping off everything
-bx lr @ Return (Branch eXchange) to the address in the link register (lr
+    pop {r0-r7, lr} @popping off everything
+    bx lr @ Return (Branch eXchange) to the address in the link register (lr
 
 .size bc_led_demo_a2, .-bc_led_demo_a2 @@ - symbol size (not strictly required, but makes the debugger happy)
 .end
