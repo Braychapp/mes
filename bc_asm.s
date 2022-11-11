@@ -337,7 +337,7 @@ mul r5, r5, r3 @getting the delay to be larger, ie original delay = 500, and the
 mov r7, r5 @moving the delay into a safer register that will only be used to replenish the delay after the loops
 mov r2, #0 @make sure r2 is 0 because it is now going to be used for the index of the string
 mov r9, #0 @make r9 0
-bl toggle_light @start the progtam with the light on
+bl toggle_light_first @start the progtam with the light on
 
 @need to set up a loop
 
@@ -377,11 +377,19 @@ toggle_light:
     bl BSP_LED_Toggle @turn on the light that r0 is equal to
     mov r5, r7 @move r7 into r5 to loop again
     cmp r9, #2 @if r9 is 2
-
     bge update_iterator @go to update the iterator if r9 is 2 meaning this is the second loop through
 
     bl pattern_loop @go back into the loop
 
+
+toggle_light_first:
+@this function is just for the first instance of turning on the light
+    ldrb r8, [r4, r2] @loading r8 with the ascii character that is at r3 of the string r4
+    add r9, r9, #1 @add 1 into r9
+    subs r8, r8, 48 @subtracting 48 from r8 to get the actual integer value instead of the ascii value
+    mov r0, r8 @move r8 into r0 to be used when calling BSP_LED_TOGGLE
+    bl BSP_LED_Toggle @turn on the light that r0 is equal to
+    bl pattern_loop @go back into the loop
 
 
 reset_iterator:
@@ -399,7 +407,32 @@ update_iterator:
 
 win_or_lose:
 @this function is going to check if the user pressed the button at the right time
+    mov r4, #4 @used for if the player wins
     cmp r6, r3 @comparing the target button to the current light that is active
+    beq winner @if they are the same then the user wins and if theyre not then they lose
+    @if its not the same then they lose
+    bl loser @branch to the losing function
+
+
+winner:
+@this function needs to turn on all lights twice then bx lr
+@this is the end of the program so the registers values are not important any more seeing as most of them will not be touched any more
+@I want to try looping the led toggle inside of here so I'll make a winner loop 
+mov r5, #7 @r5 holds the amount of leds on the board and the amount of times the program is going to loop (counting 0 as a light)
+bl winner_loop
+subs r4, #1
+bl winner_delay@going back because we need to blink the lights twice
+
+winner_delay
+
+winner_loop:
+mov r0, r5 @move the led into r0
+bl BSP_LED_TOGGLE @toggling led
+subs r5 #1 @taking 1 away from the loop total
+bl winner_loop
+
+
+
 
 pop {r0-r7, lr}
 bx lr @return
