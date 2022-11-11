@@ -376,7 +376,7 @@ toggle_light:
 
     bl pattern_loop @go back into the loop
 
-@
+
 
 reset_iterator:
     mov r2, #0 @resetting r3 to be 0
