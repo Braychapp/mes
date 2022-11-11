@@ -337,6 +337,7 @@ mul r5, r5, r3 @getting the delay to be larger, ie original delay = 500, and the
 mov r7, r5 @moving the delay into a safer register that will only be used to replenish the delay after the loops
 mov r2, #0 @make sure r2 is 0 because it is now going to be used for the index of the string
 mov r9, #0 @make r9 0
+bl toggle_light @start the progtam with the light on
 
 @need to set up a loop
 
@@ -347,7 +348,9 @@ mov r9, #0 @make r9 0
 
 pattern_loop:
     @loop while delay > 0
-    BSP_PB_GetState, #1 @comparing the button to 1
+    mov r0, #0 @make sure r0 is 0 before calling get state
+    bl BSP_PB_GetState @comparing the button to 1
+    cmp r0, #1
     beq win_or_lose
     subs r5, r5, #1 @subtract one from r5 every time    
     bge pattern_loop @looping
@@ -374,6 +377,7 @@ toggle_light:
     bl BSP_LED_Toggle @turn on the light that r0 is equal to
     mov r5, r7 @move r7 into r5 to loop again
     cmp r9, #2 @if r9 is 2
+
     bge update_iterator @go to update the iterator if r9 is 2 meaning this is the second loop through
 
     bl pattern_loop @go back into the loop
@@ -391,6 +395,11 @@ update_iterator:
 @we need to reset the dealy and then go back to the loop from here
     mov r5, r7 @move delay back
     bl pattern_loop @going back to loop again
+
+
+win_or_lose:
+@this function is going to check if the user pressed the button at the right time
+    cmp r6, r3 @comparing the target button to the current light that is active
 
 pop {r0-r7, lr}
 bx lr @return
