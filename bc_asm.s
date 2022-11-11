@@ -347,7 +347,9 @@ mov r9, #0 @make r9 0
 
 pattern_loop:
     @loop while delay > 0
-    subs r5, r5, #1 @subtract one from r5 every time
+    BSP_PB_GetState, #1 @comparing the button to 1
+    beq win_or_lose
+    subs r5, r5, #1 @subtract one from r5 every time    
     bge pattern_loop @looping
 
 @when done looping
