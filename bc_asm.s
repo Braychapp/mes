@@ -231,8 +231,168 @@ first_light:
     mov r0, r7 @making r0 the same as r7
     bl BSP_LED_Toggle @toggling the light
     add r2, r2, #1 @adding 1 to r2 to tell the program that the light is on
+    mov r3, r4
     bl led_1oop @going back to the loop
 
 
 .size bc_led_demo_a2, .-bc_led_demo_a2 @@ - symbol size (not strictly required, but makes the debugger happy)
+
+
+
+
+@ Test code for my own new function called from C
+@ This is a comment. Anything after an @ symbol is ignored.
+@@ This is also a comment. Some people use double @@ symbols.
+.code 16 @ This directive selects the instruction set being generated.
+@ The value 16 selects Thumb, with the value 32 selecting ARM.
+.text @ Tell the assembler that the upcoming section is to be considered
+@ assembly language instructions - Code section (text -> ROM)
+@@ Function Header Block
+.align 2 @ Code alignment - 2^n alignment (n=2)
+@ This causes the assembler to use 4 byte alignment
+.syntax unified @ Sets the instruction set to the new unified ARM + THUMB
+@ instructions. The default is divided (separate instruction sets)
+.global get_string @ Make the symbol name for the function visible to the linker
+.code 16 @ 16bit THUMB code (BOTH .code and .thumb_func are required)
+.thumb_func @ Specifies that the following symbol is the name of a THUMB
+@ encoded function. Necessary for interlinking between ARM and THUMB code.
+.type get_string, %function @ Declares that the symbol is a function (not strictly required)
+@ Function Declaration : int bc_led_demo_a2(int x, int y)
+get_string:
+    push {lr}
+    mov r1, #0 @setting up index
+    @string lives in r0
+
+    
+    @ldrb only loads the byte being pointed to not the entire string
+
+    @load a byte into a target register, the byte is going to be at a base address plus an offset
+    @use the ASCII table
+    @you know you're at the end of the string if you get to 0 because the ASCII value for null is #0
+
+    @cmp the value to 0
+
+    @if 0 then branch out of the loop
+
+    @if not 0 then do other stuff
+    @turn the ascii value into something
+    @bl iterateLoop
+
+    @iterateLoop:
+    @{
+        ldrb r1, [r0] @dereference the character that r0 points to
+        @puts the byte that was in r0 into r1
+
+        mov r0, r1 @move the ascii value back into r0 maybe?
+        pop {lr}
+        bx lr        
+    @}
+
+.size get_string, .-get_string @@ - symbol size (not strictly required, but makes the debugger happy)
+
+
+
+
+
+
+@ Test code for my own new function called from C
+@ This is a comment. Anything after an @ symbol is ignored.
+@@ This is also a comment. Some people use double @@ symbols.
+.code 16 @ This directive selects the instruction set being generated.
+@ The value 16 selects Thumb, with the value 32 selecting ARM.
+.text @ Tell the assembler that the upcoming section is to be considered
+@ assembly language instructions - Code section (text -> ROM)
+@@ Function Header Block
+.align 2 @ Code alignment - 2^n alignment (n=2)
+@ This causes the assembler to use 4 byte alignment
+.syntax unified @ Sets the instruction set to the new unified ARM + THUMB
+@ instructions. The default is divided (separate instruction sets)
+.global bc_Game @ Make the symbol name for the function visible to the linker
+.code 16 @ 16bit THUMB code (BOTH .code and .thumb_func are required)
+.thumb_func @ Specifies that the following symbol is the name of a THUMB
+@ encoded function. Necessary for interlinking between ARM and THUMB code.
+.type bc_Game, %function @ Declares that the symbol is a function (not strictly required)
+
+
+@ Function Declaration : int bc_Game(int delay, char * pattern, int target)
+@
+@ Input: r0, r1, r2 (r0 holds delay, r1 holds the pattern, and r2 holds the target light)
+@ Returns: nothing
+@r
+@
+@ Here is the actual add_test function
+bc_Game:
+@this function gets input from the program at r0 r1 and r2 so I need to do something with all of those values
+push {r0-r7, lr}
+@lets first get the pattern becasue it is arguably the most inportant
+mov r4, r1 @loading the whole string into r4
+mov r5, r0 @moving delay into r5 for use later
+mov r6, r2 @moving the winning number into r6 for us later
+
+
+mov r3, #1000 @for some reason I can't just multiply r5 by 1000 so I needed to put that number somewhere that hadn't been touched by the input from C
+@after this line r3 being 1000 does not matter and is not needed
+
+mul r5, r5, r3 @getting the delay to be larger, ie original delay = 500, and the new delay is 500,000
+mov r7, r5 @moving the delay into a safer register that will only be used to replenish the delay after the loops
+mov r2, #0 @make sure r2 is 0 because it is now going to be used for the index of the string
+mov r9, #0 @make r9 0
+
+@need to set up a loop
+
+@work for later: Get the button press thing working
+@get polling working
+@TEST EVERYTHING TO MAKE SURE WHAT IS DONE CURRENTLY IS WORKING
+@SPECIFICALLY STEPPING THROUGH THE STRING TO GET THE PATERN
+
+pattern_loop:
+    @loop while delay > 0
+    subs r5, r5, #1 @subtract one from r5 every time
+    bge pattern_loop @looping
+
+@when done looping
+    b toggle_light
+
+
+toggle_light:
+@this function is going to toggle the light that is currently turned on
+    ldrb r8, [r4, r2] @loading r8 with the ascii character that is at r3 of the string r4
+    @going to check if r8 is null
+    @make an if statement to check if r8 is 0 because it shouldn't ever be unles the string has reached the end
+    @if it has reached the end the function is goint o be called again after the index has been reset
+    cmp r8, #0 @if r8 == 0
+    beq reset_iterator
+    @if r8 is not == 8
+    @need to use a variable to demonstrate if the loop has currently gone through and the light is on still
+    @ill use r9 for now    
+    add r9, r9, #1 @add 1 into r9
+
+    subs r8, r8, 48 @subtracting 48 from r8 to get the actual integer value instead of the ascii value
+    mov r0, r8 @move r8 into r0 to be used when calling BSP_LED_TOGGLE
+    bl BSP_LED_Toggle @turn on the light that r0 is equal to
+    mov r5, r7 @move r7 into r5 to loop again
+    cmp r9, #2 @if r9 is 2
+    bge update_iterator @go to update the iterator if r9 is 2 meaning this is the second loop through
+
+    bl pattern_loop @go back into the loop
+
+@
+
+reset_iterator:
+    mov r2, #0 @resetting r3 to be 0
+    bl toggle_light @going back to try again now that the index is reset
+
+
+update_iterator:
+    add r2, r2, #1 @increment the index
+    mov r9, #0 @put 0 back into r9
+@we need to reset the dealy and then go back to the loop from here
+    mov r5, r7 @move delay back
+    bl pattern_loop @going back to loop again
+
+pop {r0-r7, lr}
+bx lr @return
+.size bc_Game, .-bc_Game @@ - symbol size (not strictly required, but makes the debugger happy)
+
+
 .end

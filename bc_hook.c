@@ -59,7 +59,6 @@ printf("LED DEMO\n\n"
 return;
 }
 
-
 uint32_t count;
 int fetch_status2;
 fetch_status2 = fetch_uint32_arg(&count);
@@ -81,3 +80,52 @@ led_delay = 0xFFFFFF;
 printf("bc_led_demo_a2 has finished. Here is register 0:%d \n", bc_led_demo_a2(count, led_delay)); //0 is the counter and delay is the delay from the user
 }
 ADD_CMD("demo", _bc_A2, "Test the _bc_A2 function");
+
+char * get_string(char *destptr);
+
+void getString(int action)
+{
+    int fetch_status;
+    char *destptr;
+    fetch_status = fetch_string_arg(&destptr);
+
+    if(fetch_status) {
+        //default logic here
+    }
+    printf("get_string has been called and it has returned this: %s\n", get_string(destptr));
+}
+ADD_CMD("gets", getString, "This function should get a string and pass it into ARM assembly");
+
+
+char * bc_Game(int delay, char * pattern, int target);
+
+void bcGame(int action)
+{
+
+    uint32_t led_delay;
+    int fetch_status1;
+    fetch_status1 = fetch_uint32_arg(&led_delay);
+    if(fetch_status1) {
+    // Use a default value
+    led_delay = 0xFFFFFF;
+    }   
+
+
+    int fetch_status;
+    char *destptr;
+    fetch_status = fetch_string_arg(&destptr);
+
+    if(fetch_status) {
+        //default logic here
+    }
+
+    uint32_t target;
+    int fetch_status2;
+    fetch_status2 = fetch_uint32_arg(&target);
+    if(fetch_status2) {
+    // Use a default value
+    target = 1;
+    }
+    printf("function has been called and it has returned this: %s\n", bc_Game(led_delay, destptr, target));
+}
+ADD_CMD("bcGame", bcGame, "This function should get a string and pass it into ARM assembly");
