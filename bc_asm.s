@@ -1,9 +1,10 @@
 @
 @FILE : bc_asm.s
-@PROJECT : A2 Calling Functions
+@PROJECT : A3 Blinking Lights
 @PROGRAMMER : Brayden Chapple
-@FIRST VERSION : 2022-10-12
-@DESCRIPTION : This program was created to turn on and off all the lights on the board as many times as the user wants at the speed the user wants
+@FIRST VERSION : 2022-11-11
+@DESCRIPTION : This program was created to run a game where the user needs to press a specific light when it is turned on
+@if the user wins the lights will all flicker twice and if they lose the target light will stay on.
 @
 
 
@@ -322,40 +323,45 @@ get_string:
 @
 @ Here is the actual add_test function
 bc_Game:
-@this function gets input from the program at r0 r1 and r2 so I need to do something with all of those values
-push {r0-r9, lr}
-@lets first get the pattern becasue it is arguably the most inportant
-mov r4, r1 @loading the whole string into r4
-mov r5, r0 @moving delay into r5 for use later
-mov r6, r2 @moving the winning number into r6 for us later
-@since r2 is not used currently I will use it to turn off all the lights
-mov r2, #7 @7 for the amount of leds on the board
+    @this function gets input from the program at r0 r1 and r2 so I need to do something with all of those values
+    push {r0-r9, lr}
+    @lets first get the pattern becasue it is arguably the most inportant
+    mov r4, r1 @loading the whole string into r4
+    mov r5, r0 @moving delay into r5 for use later
+    mov r6, r2 @moving the winning number into r6 for us later
+    @since r2 is not used currently I will use it to turn off all the lights
+    mov r2, #7 @7 for the amount of leds on the board
 
 
 
-mov r3, #1000 @for some reason I can't just multiply r5 by 1000 so I needed to put that number somewhere that hadn't been touched by the input from C
-@after this line r3 being 1000 does not matter and is not needed
+    mov r3, #1000 @for some reason I can't just multiply r5 by 1000 so I needed to put that number somewhere that hadn't been touched by the input from C
+    @after this line r3 being 1000 does not matter and is not needed
 
-mul r5, r5, r3 @getting the delay to be larger, ie original delay = 500, and the new delay is 500,000
-mov r7, r5 @moving the delay into a safer register that will only be used to replenish the delay after the loops
-mov r2, #0 @make sure r2 is 0 because it is now going to be used for the index of the string
-mov r9, #0 @make r9 0
-bl all_off_loop
-@bl toggle_light_first @start the progtam with the light on
-
-@need to set up a loop
-
+    mul r5, r5, r3 @getting the delay to be larger, ie original delay = 500, and the new delay is 500,000
+    mov r7, r5 @moving the delay into a safer register that will only be used to replenish the delay after the loops
+    mov r2, #0 @make sure r2 is 0 because it is now going to be used for the index of the string
+        mov r9, #0 @make r9 0
+    bl all_off_loop
+    
+@
+@Function: all_off_loop
+@Description: This loop is called at the beginning of the program to ensure all lights are starting turned off
+@Parameters: none
+@Returns: nothing
+@
 all_off_loop:
-mov r0, r2
-bl BSP_LED_Off
-subs r2, #1
-bge first_light
+    mov r0, r2
+    bl BSP_LED_Off
+    subs r2, #1
+    bge first_light
 
-@work for later: Get the button press thing working
-@get polling working
-@TEST EVERYTHING TO MAKE SURE WHAT IS DONE CURRENTLY IS WORKING
-@SPECIFICALLY STEPPING THROUGH THE STRING TO GET THE PATERN
-
+@
+@Function: pattern_loop
+@Description: This loop is the big loop for my entire program, this loop is the poll that will wait constantly for the button to be pressed
+@and if its pressed it will see if the user wins or loses, it also turns on and off the lights in the order that is specified by the user
+@Parameters: none
+@Returns: nothing
+@
 pattern_loop:
     @loop while delay > 0
     mov r0, #0 @make sure r0 is 0 before calling get state
@@ -369,6 +375,12 @@ pattern_loop:
     b toggle_light
 
 
+@
+@Function: toggle_light
+@Description: This function toggles a light based on the pattern supplied by the user
+@Parameters: none
+@Returns: nothing
+@
 toggle_light:
 @this function is going to toggle the light that is currently turned on
     ldrb r8, [r4, r2] @loading r8 with the ascii character that is at r3 of the string r4
@@ -392,6 +404,12 @@ toggle_light:
     bl pattern_loop @go back into the loop
 
 
+@
+@Function: toggle_light_first
+@Description: This function toggles the first light on when the program just started
+@Parameters: none
+@Returns: nothing
+@
 toggle_light_first:
 @this function is just for the first instance of turning on the light
     ldrb r8, [r4, r2] @loading r8 with the ascii character that is at r3 of the string r4
@@ -402,19 +420,37 @@ toggle_light_first:
     bl pattern_loop @go back into the loop
 
 
+@
+@Function: reset_iterator
+@Description: This function resets the register that has been used to iterate through the string passed by the user
+@Parameters: none
+@Returns: nothing
+@
 reset_iterator:
-    mov r2, #0 @resetting r3 to be 0
+    mov r2, #0 @resetting r2 to be 0
     bl toggle_light @going back to try again now that the index is reset
 
 
+@
+@Function: update_iterator
+@Description: This function is used to updat the iterator to be the next item in the string that has been passed in
+@Parameters: none
+@Returns: nothing
+@
 update_iterator:
     add r2, r2, #1 @increment the index
     mov r9, #0 @put 0 back into r9
-@we need to reset the dealy and then go back to the loop from here
+    @we need to reset the dealy and then go back to the loop from here
     mov r5, r7 @move delay back
     bl pattern_loop @going back to loop again
 
 
+@
+@Function: win_or_lose
+@Description: This function is used to tell whether the user has won or has lost through comparing r6 (target) and r8 (current light)
+@Parameters: none
+@Returns: nothing
+@
 win_or_lose:
 @this function is going to check if the user pressed the button at the right time
     mov r4, #3 @used for if the player wins
@@ -428,21 +464,40 @@ win_or_lose:
     @if its not the same then they lose
     bl loser @branch to the losing function
 
+@
+@Function: final_toggle
+@Description: This function turns off the light if the usr happened to press the button while the light was still on
+@Parameters: none
+@Returns: nothing
+@
 final_toggle:
-bl BSP_LED_Toggle
-mov r9, #0 @signifying the led is off
-bl win_or_lose
+    bl BSP_LED_Toggle
+    mov r9, #0 @signifying the led is off
+    bl win_or_lose
 
+@
+@Function: winner
+@Description: This function is called if the player has won the game, it calls upon another function winner_loop to go through all the lights and make sure they are 
+@turned on together and off together
+@Parameters: none
+@Returns: nothing
+@
 winner:
-@this function needs to turn on all lights twice then bx lr
-@this is the end of the program so the registers values are not important any more seeing as most of them will not be touched any more
-@I want to try looping the led toggle inside of here so I'll make a winner loop 
-mov r5, r7 @moving the delay back to r5 for use inside winner_delay
-mov r6, #7 @r6 holds the amount of leds on the board and the amount of times the program is going to loop (counting 0 as a light)
+    @this function needs to turn on all lights twice then bx lr
+    @this is the end of the program so the registers values are not important any more seeing as most of them will not be touched any more
+    @I want to try looping the led toggle inside of here so I'll make a winner loop 
+    mov r5, r7 @moving the delay back to r5 for use inside winner_delay
+    mov r6, #7 @r6 holds the amount of leds on the board and the amount of times the program is going to loop (counting 0 as a light)
 
-bl winner_loop
+    bl winner_loop
 
 
+@
+@Function: winner_delay
+@Description: This function is used to delay the time where the lights are blinked on and off if the user has won
+@Parameters: none
+@Returns: nothing
+@
 winner_delay:
     subs r5, r5, #1 @subtracting 1 every time it loops
     bge winner_delay
@@ -450,27 +505,39 @@ winner_delay:
     @if the loop is over
     bl winner @go back to winner
 
+@
+@Function: winner_loop
+@Description: This loop will loop through all the lights on the board and turn them all on, if the program is done looping through it will exit
+@Parameters: none
+@Returns: nothing
+@
 winner_loop:
-mov r0, r6 @move the led into r0
-bl BSP_LED_Toggle @toggling led
-subs r6, #1 @taking 1 away from the loop total
-bge winner_loop
+    mov r0, r6 @move the led into r0
+    bl BSP_LED_Toggle @toggling led
+    subs r6, #1 @taking 1 away from the loop total
+    bge winner_loop
 
-@if the loop is over
-subs r4, #1
-bge winner_delay @going back because we need to blink the lights twice
+    @if the loop is over
+    subs r4, #1
+    bge winner_delay @going back because we need to blink the lights twice
 
-@if all the lights have been turned on and off twice
-pop {r0-r9, lr}
-bx lr @return
+    @if all the lights have been turned on and off twice
+    pop {r0-r9, lr}
+    bx lr @return
 
 
+@
+@Function: loser
+@Description: This function is called if the user loses, it turns on the light that was supposed to be pressed and it stays on then it will exit
+@Parameters: none
+@Returns: nothing
+@
 loser:
-@this function turns on the led that was the target
-mov r0, r6 @moving the target into r0 to be turned on
-bl BSP_LED_Toggle
-pop {r0-r9, lr}
-bx lr @return
+    @this function turns on the led that was the target
+    mov r0, r6 @moving the target into r0 to be turned on
+    bl BSP_LED_Toggle
+    pop {r0-r9, lr}
+    bx lr @return
 .size bc_Game, .-bc_Game @@ - symbol size (not strictly required, but makes the debugger happy)
 
 
