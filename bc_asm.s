@@ -408,10 +408,15 @@ update_iterator:
 win_or_lose:
 @this function is going to check if the user pressed the button at the right time
     mov r4, #3 @used for if the player wins
+    @need to turn off the curent light that is on
+    mov r0, r8 @getting the led thats currently on
+    @need to see if the led is currently on or not
+    cmp r9, #0 @if the light is currently turned on it will turn it off
+    beq BSP_LED_Toggle @turning off the current LED
     cmp r6, r8 @comparing the target button to the current light that is active
     beq winner @if they are the same then the user wins and if theyre not then they lose
     @if its not the same then they lose
-    @bl loser @branch to the losing function
+    bl loser @branch to the losing function
 
 
 winner:
@@ -420,9 +425,7 @@ winner:
 @I want to try looping the led toggle inside of here so I'll make a winner loop 
 mov r5, r7 @moving the delay back to r5 for use inside winner_delay
 mov r6, #7 @r6 holds the amount of leds on the board and the amount of times the program is going to loop (counting 0 as a light)
-@need to turn off the curent light that is on
-mov r0, r8 @getting the led thats currently on
-bl BSP_LED_Toggle @turning off the current LED
+
 bl winner_loop
 
 
@@ -444,6 +447,14 @@ subs r4, #1
 bge winner_delay @going back because we need to blink the lights twice
 
 @if all the lights have been turned on and off twice
+pop {r0-r9, lr}
+bx lr @return
+
+
+loser:
+@this function turns on the led that was the target
+mov r0, r6 @moving the target into r0 to be turned on
+bl BSP_LED_Toggle
 pop {r0-r9, lr}
 bx lr @return
 .size bc_Game, .-bc_Game @@ - symbol size (not strictly required, but makes the debugger happy)

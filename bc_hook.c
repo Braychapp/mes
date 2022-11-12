@@ -107,7 +107,7 @@ void bcGame(int action)
     fetch_status1 = fetch_uint32_arg(&led_delay);
     if(fetch_status1) {
     // Use a default value
-    led_delay = 0xFFFFFF;
+    led_delay = 1000;
     }   
 
 
@@ -116,15 +116,14 @@ void bcGame(int action)
     fetch_status = fetch_string_arg(&destptr);
 
     if(fetch_status) {
-        //default logic here
+        destptr = "01357642";
     }
 
     uint32_t target;
     int fetch_status2;
     fetch_status2 = fetch_uint32_arg(&target);
     if(fetch_status2) {
-    // Use a default value
-    target = 1;
+    target = 0;
     }
     printf("function has been called and it has returned this: %s\n", bc_Game(led_delay, destptr, target));
 }
