@@ -328,6 +328,9 @@ push {r0-r9, lr}
 mov r4, r1 @loading the whole string into r4
 mov r5, r0 @moving delay into r5 for use later
 mov r6, r2 @moving the winning number into r6 for us later
+@since r2 is not used currently I will use it to turn off all the lights
+mov r2, #7 @7 for the amount of leds on the board
+
 
 
 mov r3, #1000 @for some reason I can't just multiply r5 by 1000 so I needed to put that number somewhere that hadn't been touched by the input from C
@@ -337,9 +340,16 @@ mul r5, r5, r3 @getting the delay to be larger, ie original delay = 500, and the
 mov r7, r5 @moving the delay into a safer register that will only be used to replenish the delay after the loops
 mov r2, #0 @make sure r2 is 0 because it is now going to be used for the index of the string
 mov r9, #0 @make r9 0
-bl toggle_light_first @start the progtam with the light on
+bl all_off_loop
+@bl toggle_light_first @start the progtam with the light on
 
 @need to set up a loop
+
+all_off_loop:
+mov r0, r2
+bl BSP_LED_Off
+subs r2, #1
+bge first_light
 
 @work for later: Get the button press thing working
 @get polling working
