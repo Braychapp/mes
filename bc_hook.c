@@ -107,7 +107,7 @@ void bcGame(int action)
     fetch_status1 = fetch_uint32_arg(&led_delay);
     if(fetch_status1) {
     // Use a default value
-    led_delay = 1000;
+    led_delay = 500;
     }   
 
 

@@ -411,13 +411,17 @@ win_or_lose:
     @need to turn off the curent light that is on
     mov r0, r8 @getting the led thats currently on
     @need to see if the led is currently on or not
-    cmp r9, #0 @if the light is currently turned on it will turn it off
-    beq BSP_LED_Toggle @turning off the current LED
+    cmp r9, #1 @if the light is currently turned on it will turn it off
+    beq final_toggle
     cmp r6, r8 @comparing the target button to the current light that is active
     beq winner @if they are the same then the user wins and if theyre not then they lose
     @if its not the same then they lose
     bl loser @branch to the losing function
 
+final_toggle:
+bl BSP_LED_Toggle
+mov r9, #0 @signifying the led is off
+bl win_or_lose
 
 winner:
 @this function needs to turn on all lights twice then bx lr
