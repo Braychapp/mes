@@ -323,7 +323,7 @@ get_string:
 @ Here is the actual add_test function
 bc_Game:
 @this function gets input from the program at r0 r1 and r2 so I need to do something with all of those values
-push {r0-r7, lr}
+push {r0-r9, lr}
 @lets first get the pattern becasue it is arguably the most inportant
 mov r4, r1 @loading the whole string into r4
 mov r5, r0 @moving delay into r5 for use later
@@ -407,34 +407,44 @@ update_iterator:
 
 win_or_lose:
 @this function is going to check if the user pressed the button at the right time
-    mov r4, #4 @used for if the player wins
-    cmp r6, r3 @comparing the target button to the current light that is active
+    mov r4, #3 @used for if the player wins
+    cmp r6, r8 @comparing the target button to the current light that is active
     beq winner @if they are the same then the user wins and if theyre not then they lose
     @if its not the same then they lose
-    bl loser @branch to the losing function
+    @bl loser @branch to the losing function
 
 
 winner:
 @this function needs to turn on all lights twice then bx lr
 @this is the end of the program so the registers values are not important any more seeing as most of them will not be touched any more
 @I want to try looping the led toggle inside of here so I'll make a winner loop 
-mov r5, #7 @r5 holds the amount of leds on the board and the amount of times the program is going to loop (counting 0 as a light)
+mov r5, r7 @moving the delay back to r5 for use inside winner_delay
+mov r6, #7 @r6 holds the amount of leds on the board and the amount of times the program is going to loop (counting 0 as a light)
+@need to turn off the curent light that is on
+mov r0, r8 @getting the led thats currently on
+bl BSP_LED_Toggle @turning off the current LED
 bl winner_loop
-subs r4, #1
-bl winner_delay@going back because we need to blink the lights twice
 
-winner_delay
+
+winner_delay:
+    subs r5, r5, #1 @subtracting 1 every time it loops
+    bge winner_delay
+
+    @if the loop is over
+    bl winner @go back to winner
 
 winner_loop:
-mov r0, r5 @move the led into r0
-bl BSP_LED_TOGGLE @toggling led
-subs r5 #1 @taking 1 away from the loop total
-bl winner_loop
+mov r0, r6 @move the led into r0
+bl BSP_LED_Toggle @toggling led
+subs r6, #1 @taking 1 away from the loop total
+bge winner_loop
 
+@if the loop is over
+subs r4, #1
+bge winner_delay @going back because we need to blink the lights twice
 
-
-
-pop {r0-r7, lr}
+@if all the lights have been turned on and off twice
+pop {r0-r9, lr}
 bx lr @return
 .size bc_Game, .-bc_Game @@ - symbol size (not strictly required, but makes the debugger happy)
 
