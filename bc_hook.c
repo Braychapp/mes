@@ -182,7 +182,7 @@ return;
 
     uint32_t target;
     int fetch_status;
-    fetch_status = fetch_string_arg(&target);
+    fetch_status = fetch_uint32_arg(&target);
 
     if(fetch_status) {
         target = 0;
