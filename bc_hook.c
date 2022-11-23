@@ -185,7 +185,7 @@ return;
     fetch_status = fetch_uint32_arg(&target);
 
     if(fetch_status) {
-        target = 0;
+        target = 2;
     }
 
     uint32_t game_time;
@@ -193,7 +193,7 @@ return;
     fetch_status2 = fetch_uint32_arg(&game_time);
 
     if(fetch_status2) {
-        game_time = 0;
+        game_time = 10;
     }
 
     printf("bc_tilt returned: %d\n", bc_tilt(delay, target, game_time));

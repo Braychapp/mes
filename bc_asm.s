@@ -620,7 +620,7 @@ accel_test:
 @@ Function Header Block
 .align 2 @ Code alignment - 2^n alignment (n=2)
 @ This causes the assembler to use 4 byte alignment
-.syntax unified @ Sets the instruction set to the new unified ARM + THUMB
+.syntax unified @ Sets the instruction set to the new unified ARM + THUMBx
 @ instructions. The default is divided (separate instruction sets)
 .global bc_tilt @ Make the symbol name for the function visible to the linker
 .code 16 @ 16bit THUMB code (BOTH .code and .thumb_func are required)
