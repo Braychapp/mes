@@ -196,9 +196,7 @@ return;
         game_time = 0;
     }
 
-    for(int i = 0; i < 100; i++)
-    {
-        printf("bc_tilt returned: %d\n", bc_tilt(delay, target, game_time));
-    }
+    printf("bc_tilt returned: %d\n", bc_tilt(delay, target, game_time));
+    
 }
 ADD_CMD("bcTilt", TiltGame,"Test the accelerometer");
