@@ -683,7 +683,7 @@ bc_tick:
 
     @right about here we probably call the function to check the value of the accelerometer and return it as a workable
 
-    accel_to_LED
+    bl accel_to_LED
     @value for an led between 0 and 7 and if its the same as the target then we would decrement the target led
 
     @if by now we don't hit 0 then we do nothing
@@ -697,6 +697,11 @@ accel_to_LED:
  @inputs arrive in r0 and r1
  @if x is positive output will be 2, 4, or 6
  @if x is negative output will be 1, 3, or 5
+
+
+
+
+ 
 
  @if Y is positive output will be 0, 1, or 2
  @if Y is negative output will be 5, 6, or 7
