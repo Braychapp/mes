@@ -632,6 +632,7 @@ accel_test:
 GAME_TIME: .word 0 @creating a game time variable
 TARGET: .word 0 @creating a target variable
 TARGET_TIME: .word 0 @creating a target time variable
+.equ WIN_DELAY, 7A120 @500000 in hex for the blinking of the lights if the player wins
 @this will be getting called from C but we want to call it from the system tick handler
 
 @ Function Declaration : int bc_tile()
