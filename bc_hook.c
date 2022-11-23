@@ -173,7 +173,7 @@ return;
 //creating a variable of type uint32_t called delay and a regular int called fetch_status
     uint32_t delay;
     int fetch_status1;
-    fetch_status1 = fetch_uint32_arg(&led_delay);
+    fetch_status1 = fetch_uint32_arg(&delay);
 
     if(fetch_status1) {
     // Use a default value
@@ -182,7 +182,7 @@ return;
 
     uint32_t target;
     int fetch_status;
-    fetch_status = fetch_string_arg(&destptr);
+    fetch_status = fetch_string_arg(&target);
 
     if(fetch_status) {
         target = 0;
@@ -190,7 +190,7 @@ return;
 
     uint32_t game_time;
     int fetch_status2;
-    fetch_status2 = fetch_uint32_arg(&target);
+    fetch_status2 = fetch_uint32_arg(&game_time);
 
     if(fetch_status2) {
         game_time = 0;
