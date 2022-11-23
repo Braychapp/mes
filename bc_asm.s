@@ -667,6 +667,14 @@ bc_tilt:
 
 .size bc_tile, .-bc_tilt @@ - symbol size (not strictly required, but makes the debugger happy)
 
+bc_tick:
+
+    ldr r1, =GAME_TIME
+    ldr r0, [r1] @loading r1 into r0
+    subs r0, r0, 1 @subtracting 1 from r0 and if its 0 sent the negative flag
+
+    @if ticks hit 0 stop doing stuff
+    ble game_lose
 
 
 @function to convert the accel values into whatever light  on the board
@@ -679,6 +687,15 @@ accel_to_LED:
  @if Y is negative output will be 5, 6, or 7
 
  @number from -128 to +127 for X and Y to turn into a single LED output
+
+
+.size accel_to_LED, .-accel_to_LED
+
+game_lose:
+@empty function currently
+bx lr 
+
+
 
 
 
