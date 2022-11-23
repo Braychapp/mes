@@ -628,11 +628,25 @@ accel_test:
 @ encoded function. Necessary for interlinking between ARM and THUMB code.
 .type bc_tilt, %function @ Declares that the symbol is a function (not strictly required)
 
+.equ TIME_MULTIPLIER, #1000 @if someone sends in 30 it needs to be 30000
+@this will be getting called from C but we want to call it from the system tick handler
+
+@ Function Declaration : int bc_tile()
+@
+@ Input: r0 (i.e. r0 holds an integer for which accelerometer value to read)
+@ Returns: r0 - current accelerometer value
+@r
+@
 bc_tilt:
 @start of function
-    push {lr}
+@r0 is the delay r1 is the target r2 is the game duration
+    push {r4, lr}
 
-    pop {lr}
+    mov r4, r0 @get the delay into a register that won't be touched by other functions
+    mov r5, r1 @move the target to a register 
+    mul r4, r2, TIME_MULTIPLIER @multiply the game time to be the correct duration
+
+    pop {r4, lr}
     bx lr
 
 
