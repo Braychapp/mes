@@ -128,3 +128,77 @@ void bcGame(int action)
     printf("function has been called and it has returned this: %s\n", bc_Game(led_delay, destptr, target));
 }
 ADD_CMD("bcGame", bcGame, "This function should get a string and pass it into ARM assembly");
+
+
+// int accel_test(int choice);
+
+// void AccelerometerTest(int action)
+// {
+// if(action==CMD_SHORT_HELP) return;
+// if(action==CMD_LONG_HELP) {
+// printf("accelerometer test\n\n"
+// "This command tests the accelerometer\n"
+// );
+// return;
+// }
+// //creating a variable of type uint32_t called delay and a regular int called fetch_status
+// uint32_t user_input;
+// int fetch_status;
+
+// fetch_status = fetch_uint32_arg(&user_input);
+
+// if(fetch_status) {
+// // Use a default delay value
+// user_input = 6;
+// }
+
+//     for(int i = 0; i < 100; i++)
+//     {
+//         printf("accel_test returned: %d\n", accel_test(user_input));
+//     }
+// }
+// ADD_CMD("acceltest", AccelerometerTest,"Test the accelerometer");
+
+int bc_tilt(int delay, int target, int game_time);
+
+void TiltGame(int action)
+{
+if(action==CMD_SHORT_HELP) return;
+if(action==CMD_LONG_HELP) {
+printf("Tilt Game\n\n"
+"This command plays the tilt game\n"
+);
+return;
+}
+//creating a variable of type uint32_t called delay and a regular int called fetch_status
+    uint32_t delay;
+    int fetch_status1;
+    fetch_status1 = fetch_uint32_arg(&led_delay);
+
+    if(fetch_status1) {
+    // Use a default value
+        delay = 1000;
+    }   
+
+    uint32_t target;
+    int fetch_status;
+    fetch_status = fetch_string_arg(&destptr);
+
+    if(fetch_status) {
+        target = 0;
+    }
+
+    uint32_t game_time;
+    int fetch_status2;
+    fetch_status2 = fetch_uint32_arg(&target);
+
+    if(fetch_status2) {
+        game_time = 0;
+    }
+
+    for(int i = 0; i < 100; i++)
+    {
+        printf("bc_tilt returned: %d\n", bc_tilt(delay, target, game_time));
+    }
+}
+ADD_CMD("bcTilt", TiltGame,"Test the accelerometer");

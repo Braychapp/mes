@@ -69,7 +69,7 @@ bx lr @ Return (Branch eXchange) to the address in the link register (lr)
 @ Here is the actual function. DO NOT MODIFY THIS FUNCTION.
 busy_delay:
 push {r0, r5} @pushing register 5
-mov r5, r2 @moving the value within r2 to r5
+mov r5, r0 @moving the value within r0 to r5
 delay_1oop:
     subs r5, r5, #1
     bge delay_1oop
@@ -539,6 +539,99 @@ loser:
     pop {r0-r9, lr}
     bx lr @return
 .size bc_Game, .-bc_Game @@ - symbol size (not strictly required, but makes the debugger happy)
+
+
+
+@ Test code for my own new function called from C
+@ This is a comment. Anything after an @ symbol is ignored.
+@@ This is also a comment. Some people use double @@ symbols.
+.code 16 @ This directive selects the instruction set being generated.
+@ The value 16 selects Thumb, with the value 32 selecting ARM.
+.text @ Tell the assembler that the upcoming section is to be considered
+@ assembly language instructions - Code section (text -> ROM)
+@@ Function Header Block
+.align 2 @ Code alignment - 2^n alignment (n=2)
+@ This causes the assembler to use 4 byte alignment
+.syntax unified @ Sets the instruction set to the new unified ARM + THUMB
+@ instructions. The default is divided (separate instruction sets)
+.global accel_test @ Make the symbol name for the function visible to the linker
+.code 16 @ 16bit THUMB code (BOTH .code and .thumb_func are required)
+.thumb_func @ Specifies that the following symbol is the name of a THUMB
+@ encoded function. Necessary for interlinking between ARM and THUMB code.
+.type accel_test, %function @ Declares that the symbol is a function (not strictly required)
+
+@define constants
+.equ I2C_Address, 0x32
+.equ X_LO, 0x28
+.equ X_HI, 0x29
+
+.equ Y_HI, 0x2B
+.equ READ_DELAY, 0xFFFFF
+
+
+@ Function Declaration : int accel_test()
+@
+@ Input: r0 (i.e. r0 holds an integer for which accelerometer value to read)
+@ Returns: r0 - current accelerometer value
+@r
+@
+@ Here is the actual add_test function
+
+@ LIGHTS ON THE BOARD
+@ (-X, +Y)          0           (+X, -Y)
+@
+@           1               2   
+@
+@       3                       4
+@
+@           5               6
+@
+@ (-X, -Y)          7           (+X, -Y)
+
+
+accel_test:
+    push {r4, lr}
+
+    ldr r0, =READ_DELAY
+    bl busy_delay
+    
+    mov r0, #I2C_Address
+    mov r1, #Y_HI @reads the Y value at high order
+    bl COMPASSACCELERO_IO_Read @called to read the accelerometer value
+    
+    sxtb r0, r0 @turn 8 bit value into 32 bit value
+
+    mov r4, r0 @moving r0 into r4
+
+    mov r0, #I2C_Address
+    mov r1, #X_HI
+    bl COMPASSACCELERO_IO_Read
+
+    sxtb r0, r0 @turning 8 bit value to 32 bit value
+
+    mov r1, r4 @moving the value back to r1 R1 IS THE Y VALUE HERE    
+
+
+    @at this point r0 holds a useful value in the range of -128 to +127 represnting the tilt on the axis read
+
+    pop {r4, lr}
+    bx lr @ Return (Branch eXchange) to the address in the link register (lr)
+
+.size accel_test, .-accel_test @@ - symbol size (not strictly required, but makes the debugger happy)
+@ Assembly file ended by single .end directive on its own line
+
+
+@function to convert the accel values into whatever light  on the board
+accel_to_LED:
+ @inputs arrive in r0 and r1
+ @if x is positive output will be 2, 4, or 6
+ @if x is negative output will be 1, 3, or 5
+
+ @if Y is positive output will be 0, 1, or 2
+ @if Y is negative output will be 5, 6, or 7
+
+ @number from -128 to +127 for X and Y to turn into a single LED output
+
 
 
 .end
