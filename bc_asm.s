@@ -590,7 +590,7 @@ loser:
 
 
 accel_test:
-    push {r4, lr}
+    push {lr}
 
     ldr r0, =READ_DELAY
     bl busy_delay
@@ -601,20 +601,9 @@ accel_test:
     
     sxtb r0, r0 @turn 8 bit value into 32 bit value
 
-    mov r4, r0 @moving r0 into r4
-
-    mov r0, #I2C_Address
-    mov r1, #X_HI
-    bl COMPASSACCELERO_IO_Read
-
-    sxtb r0, r0 @turning 8 bit value to 32 bit value
-
-    mov r1, r4 @moving the value back to r1 R1 IS THE Y VALUE HERE    
-
-
     @at this point r0 holds a useful value in the range of -128 to +127 represnting the tilt on the axis read
 
-    pop {r4, lr}
+    pop {lr}
     bx lr @ Return (Branch eXchange) to the address in the link register (lr)
 
 .size accel_test, .-accel_test @@ - symbol size (not strictly required, but makes the debugger happy)
