@@ -629,6 +629,9 @@ accel_test:
 .type bc_tilt, %function @ Declares that the symbol is a function (not strictly required)
 
 .equ TIME_MULTIPLIER, 0x3E8 @if someone sends in 30 it needs to be 30000
+GAME_TIME: .word 0 @creating a game time variable
+TARGET: .word 0 @creating a target variable
+TARGET_TIME: .word 0 @creating a target time variable
 @this will be getting called from C but we want to call it from the system tick handler
 
 @ Function Declaration : int bc_tile()
@@ -640,14 +643,25 @@ accel_test:
 bc_tilt:
 @start of function
 @r0 is the delay r1 is the target r2 is the game duration
-    push {r4-r6, lr}
+    push {r4, lr}
 
-    mov r4, r0 @get the delay into a register that won't be touched by other functions
-    mov r5, r1 @move the target to a register 
-    mov r6, #TIME_MULTIPLIER @move the multipler into r6 to be used
-    mul r4, r2, r6 @multiply the game time to be the correct duration
+    ldr r0, =TARGET_TIME @loading target time with the delay passed in by the user
+    ldr r1, =TARGET @loading the target variable with the target LED
+    mov r4, #TIME_MULTIPLIER @moving time multiplier into r4
+    mul r4, r2, r4 @multiplying the game time to be in the 10 thousands of ticks
+    ldr r4, =GAME_TIME @moving the now ready time into game time
 
-    pop {r4-r6, lr}
+
+    @mov r4, r0 @get the delay into a register that won't be touched by other functions
+    @mov r5, r1 @move the target to a register 
+    @mov r6, #TIME_MULTIPLIER @move the multipler into r6 to be used
+    @mul r6, r2, r6 @multiply the game time to be the correct duration
+
+    @r4 holds the time the user needs to keep the target light on for
+    @r5 holds the target light
+    @r6 holds the total game time
+
+    pop {r4, lr}
     bx lr
 
 
