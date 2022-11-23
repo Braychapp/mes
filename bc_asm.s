@@ -669,12 +669,24 @@ bc_tilt:
 
 bc_tick:
 
+    push {lr}
     ldr r1, =GAME_TIME
     ldr r0, [r1] @loading r1 into r0
     subs r0, r0, 1 @subtracting 1 from r0 and if its 0 sent the negative flag
 
     @if ticks hit 0 stop doing stuff
     ble game_lose
+
+    @if above 0 store the result back and do stuff or tick another value
+    str r0, [r1]
+
+    @right about here we probably call the function to check the value of the accelerometer and return it as a workable
+    @value for an led between 0 and 7 and if its the same as the target then we would decrement the target led
+
+    @if by now we don't hit 0 then we do nothing
+    bgt do_nothing
+
+    
 
 
 @function to convert the accel values into whatever light  on the board
@@ -694,6 +706,10 @@ accel_to_LED:
 game_lose:
 @empty function currently
 bx lr 
+
+do_nothing:
+pop {lr}
+bx lr
 
 
 
