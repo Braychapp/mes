@@ -730,14 +730,16 @@ accel_to_LED:
     @if it gets past this line that means that X is positive
 
     cmp r1, #0 @compare Y to 0
-    ble Y_NEGATIVE @
+    ble Y_NEGATIVE @ if Y is below 0 then we go to Y_NEGATIVE
+
+    mov r0, #2
 
 
     X_NEGATIVE:
         cmp r0, #0 @need to compare X to 0 again
         beq X_IS_ZERO @checking if X is 0 and if it is we go to X_IS_ZERO
 
-        mov r0, #2 @returning LED 2
+        mov r0, #1 @returning LED 2
 
 
         X_IS_ZERO:
