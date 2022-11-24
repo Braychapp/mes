@@ -635,6 +635,7 @@ TARGET_TIME: .word 0 @creating a target time variable
 .equ WIN_DELAY, 0x7A120 @500000 in hex for the blinking of the lights if the player wins
 X_VAL: .word 0 @creating a variable for the X value
 Y_VAL: .word 0 @creating a variable for the Y value
+CURRENT_LED: .word 0 @creating a variable to hold the currently turned on light
 @this will be getting called from C but we want to call it from the system tick handler
 
 @ Function Declaration : int bc_tile()
@@ -707,9 +708,14 @@ bc_tick:
 
     @right about here we probably call the function to check the value of the accelerometer and return it as a workable
 
-    bl accel_to_LED
+    bl accel_to_LED @the r0 value exiting this function should be between 0 and 7
     @value for an led between 0 and 7 and if its the same as the target then we would decrement the target led
+    ldr r2, =CURRENT_LED
 
+
+    @call function to decrement the winning time
+    cmp r0, [r2] @Compare the currently turned on LED to the LED returned from accel_to_LED
+    beq CORRECT_LED
     @if by now we don't hit 0 then we do nothing
     bgt do_nothing
 
