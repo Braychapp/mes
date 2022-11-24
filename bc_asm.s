@@ -746,7 +746,7 @@ accel_to_LED:
         mov r0, #1 @returning LED 1
 
         X_NEGATIVE_Y_NEGATIVE:
-            cmp r1 #0 @checking if Y is 0
+            cmp r1, #0 @checking if Y is 0
             beq X_NEGATIVE_Y_IS_ZERO @if X is negative and Y is 0 brahcn to X_NEGATIVE_Y_IS_ZERO
 
             mov r0, #5 @returning LED 5
@@ -754,7 +754,7 @@ accel_to_LED:
 
         X_IS_ZERO:
         @if it gets to here we know X is 0
-            cmp r1 #0 @comparing Y to 0
+            cmp r1, #0 @comparing Y to 0
             ble X_IS_ZERO_Y_NEGATIVE
 
             mov r0, #0 @returning LED 0
