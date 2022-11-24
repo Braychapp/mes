@@ -648,11 +648,11 @@ bc_tilt:
 @r0 is the delay r1 is the target r2 is the game duration
     push {r4, lr}
 
-    ldr r0, =TARGET_TIME @loading target time with the delay passed in by the user
-    ldr r1, =TARGET @loading the target variable with the target LED
+    str r0, =TARGET_TIME @loading target time with the delay passed in by the user
+    str r1, =TARGET @loading the target variable with the target LED
     mov r4, #TIME_MULTIPLIER @moving time multiplier into r4
     mul r4, r2, r4 @multiplying the game time to be in the 10 thousands of ticks
-    ldr r4, =GAME_TIME @moving the now ready time into game time
+    str r4, =GAME_TIME @moving the now ready time into game time
 
 
     @mov r4, r0 @get the delay into a register that won't be touched by other functions
@@ -689,7 +689,7 @@ bc_tick:
     bl COMPASSACCELERO_IO_Read @call to read accelerometer value for X
     sxtb r0, r0 @turn the 8 bit into a 32 bit for use
 
-    ldr r0, =X_VAL @putting the value into X_VAL
+    str r0, =X_VAL @putting the value into X_VAL
 
     @now onto getting the Y value
     mov r0, #I2C_Address
@@ -697,7 +697,7 @@ bc_tick:
     bl COMPASSACCELERO_IO_Read
     sxtb r0, r0 @turning the 8 bit into 32 bit
 
-    ldr r0, =X_VAL
+    str r0, =X_VAL
 
     @right about here we probably call the function to check the value of the accelerometer and return it as a workable
 
@@ -722,6 +722,20 @@ accel_to_LED:
 
     push {lr}
 
+    ldr r0, =X_VAL @load the X value into r0
+    ldr r1, =Y_VAL @load the Y value into r1
+
+    cmp r0, #0 @compare r0 to 0
+
+    ble X_NEGATIVE @if X is less than or equal to 0 it goes into X_NEGATIVE
+
+    
+
+
+    X_NEGATIVE:
+
+
+    @start by checking if
 
     pop {lr}
 
@@ -739,8 +753,8 @@ game_lose:
 bx lr 
 
 do_nothing:
-pop {lr}
-bx lr
+    pop {lr}
+    bx lr
 
 
 
