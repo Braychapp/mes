@@ -648,11 +648,15 @@ bc_tilt:
 @r0 is the delay r1 is the target r2 is the game duration
     push {r4, lr}
 
-    str r0, =TARGET_TIME @loading target time with the delay passed in by the user
-    str r1, =TARGET @loading the target variable with the target LED
+    @going to use r4 for the address of stuff
+    ldr r4, =TARGET_TIME
+    str r0, [r4] @loading target time with the delay passed in by the user
+    ldr r4, =TARGET
+    str r1, [r4] @loading the target variable with the target LED
     mov r4, #TIME_MULTIPLIER @moving time multiplier into r4
     mul r4, r2, r4 @multiplying the game time to be in the 10 thousands of ticks
-    str r4, =GAME_TIME @moving the now ready time into game time
+    ldr r2, =GAME_TIME
+    str r4, [r2] @moving the now ready time into game time
 
 
     @mov r4, r0 @get the delay into a register that won't be touched by other functions
