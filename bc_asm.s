@@ -693,7 +693,8 @@ bc_tick:
     bl COMPASSACCELERO_IO_Read @call to read accelerometer value for X
     sxtb r0, r0 @turn the 8 bit into a 32 bit for use
 
-    str r0, =X_VAL @putting the value into X_VAL
+    ldr r2, =X_VAL @ getting X address
+    str r0, [r2] @putting the value into X_VAL
 
     @now onto getting the Y value
     mov r0, #I2C_Address
@@ -701,7 +702,8 @@ bc_tick:
     bl COMPASSACCELERO_IO_Read
     sxtb r0, r0 @turning the 8 bit into 32 bit
 
-    str r0, =X_VAL
+    ldr r2, =Y_VAL @getting Y address 
+    str r0, [r2] @storing the value
 
     @right about here we probably call the function to check the value of the accelerometer and return it as a workable
 
@@ -727,8 +729,11 @@ accel_to_LED:
 @LEDS CURRENTLY USED 0 1 2 3 4 5 6 7
     push {lr}
 
+
     ldr r0, =X_VAL @load the X value into r0
+
     ldr r1, =Y_VAL @load the Y value into r1
+
 
     cmp r0, #0 @compare r0 to 0
     ble X_NEGATIVE @if X is less than or equal to 0 it goes into X_NEGATIVE    
