@@ -821,6 +821,7 @@ CORRECT_LED:
     ldr r1, =TARGET_TIME @loading r1 with the target
     ldr r0, [r1]
     subs r0, r0, #1 @subtracting 1 from the target timer
+    ble game_win
 
     mov r0, r4
     @these lines deal with manipulating the most recent LED to be turned on
