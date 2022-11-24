@@ -636,6 +636,7 @@ TARGET_TIME: .word 0 @creating a target time variable
 X_VAL: .word 0 @creating a variable for the X value
 Y_VAL: .word 0 @creating a variable for the Y value
 CURRENT_LED: .word 0 @creating a variable to hold the currently turned on light
+PREVIOUS_LED: .word 0 @creating a varibale for the previous LED to be on
 @this will be getting called from C but we want to call it from the system tick handler
 
 @ Function Declaration : int bc_tile()
@@ -688,6 +689,8 @@ bc_tick:
     @if above 0 store the result back and do stuff or tick another value
     str r0, [r1]
 
+    bgt do_nothing @do nothing if we have not hit 0
+
     @call the function to check values of X and Y for the board
     mov r0, #I2C_Address
     mov r1, #X_HI @getting the X value first
@@ -715,9 +718,12 @@ bc_tick:
 
     @call function to decrement the winning time
     cmp r0, [r2] @Compare the currently turned on LED to the LED returned from accel_to_LED
-    beq CORRECT_LED
+    beq CORRECT_LED @if the light is the correct one we go into this function to decrement how long the timer needs to be held for
+
+    @if the led currently on is WRONG we go into a different function
+    bl WRONG_LED
     @if by now we don't hit 0 then we do nothing
-    bgt do_nothing
+    
 
     
 
@@ -800,6 +806,49 @@ accel_to_LED:
     bx lr
 
 .size accel_to_LED, .-accel_to_LED
+
+CORRECT_LED:
+    push {r4, lr}
+
+    mov r4, r0
+    bl BSP_LED_ON @r0 should still be whatever it was returned from the accel_to_LED function
+
+    ldr r2, =PREVIOUS_LED
+    ldr r0, [r2]
+    bl BSP_LED_Off @turning off the old LED
+
+    ldr r1, =TARGET_TIME @loading r1 with the target
+    ldr r0, [r1]
+    subs r0, r0, #1 @subtracting 1 from the target timer
+
+    @these lines deal with manipulating the most recent LED to be turned on
+    ldr r1, =CURRENT_LED
+    ldr r2, =PREVIOUS_LED
+    ldr r0, r1
+    str r0, [r2]
+
+
+    pop {r4, lr}
+    bx lr
+
+    .size CORRECT_LED, .-CORRECT_LED
+
+
+WRONG_LED:
+    push {r4, lr}
+    mov r4, r0
+    bl BSP_LED_ON @r0 should still be whatever it was returned from the accel_to_LED function
+
+    ldr r2, =PREVIOUS_LED
+    ldr r0, [r2]
+    bl BSP_LED_Off @turning off the old LED
+
+ @these lines deal with manipulating the most recent LED to be turned on
+    ldr r1, =CURRENT_LED
+    ldr r2, =PREVIOUS_LED
+    ldr r0, r1
+    str r0, [r2]
+    pop {r4, lr}
 
 game_lose:
 @empty function currently
