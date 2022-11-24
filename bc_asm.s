@@ -720,7 +720,7 @@ accel_to_LED:
  @if Y is negative output will be 5, 6, or 7
 
 
-@LEDS CURRENTLY USED 0 1 2 4 5 6 7
+@LEDS CURRENTLY USED 0 1 2 3 4 5 6 7
     push {lr}
 
     ldr r0, =X_VAL @load the X value into r0
@@ -734,7 +734,6 @@ accel_to_LED:
     ble Y_NEGATIVE @ if Y is below 0 then we go to Y_NEGATIVE
 
     mov r0, #2 @return LED 2
-
 
 
     X_NEGATIVE:
@@ -765,6 +764,9 @@ accel_to_LED:
             mov r0, #7 @returning LED 7
 
 
+        X_NEGATIVE_Y_IS_ZERO:
+            mov r0, #3 @returning LED 3
+            
 
     Y_NEGATIVE:
         cmp r1, #0 @compare Y to 0 again
@@ -780,13 +782,7 @@ accel_to_LED:
 
 
     pop {lr}
-
-
-
-
- @number from -128 to +127 for X and Y to turn into a single LED output
-
-bx lr
+    bx lr
 
 .size accel_to_LED, .-accel_to_LED
 
