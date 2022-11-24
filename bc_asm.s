@@ -726,13 +726,30 @@ accel_to_LED:
     ldr r1, =Y_VAL @load the Y value into r1
 
     cmp r0, #0 @compare r0 to 0
+    ble X_NEGATIVE @if X is less than or equal to 0 it goes into X_NEGATIVE    
+    @if it gets past this line that means that X is positive
 
-    ble X_NEGATIVE @if X is less than or equal to 0 it goes into X_NEGATIVE
-
-    
+    cmp r1, #0 @compare Y to 0
+    ble Y_NEGATIVE @
 
 
     X_NEGATIVE:
+        cmp r0, #0 @need to compare X to 0 again
+        beq X_IS_ZERO @checking if X is 0 and if it is we go to X_IS_ZERO
+
+        mov r0, #2 @returning LED 2
+
+
+        X_IS_ZERO:
+        @if it gets to here we know X is 0
+        cmp r1 #0 @comparing Y to 0
+        ble X_IS_ZERO_Y_NEGATIVE
+
+        mov r0, #0 @returning LED 0
+
+
+        X_IS_ZERO_Y_NEGATIVE:
+        mov r0, #7 @returning LED 7
 
 
     @start by checking if
