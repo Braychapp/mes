@@ -633,6 +633,8 @@ GAME_TIME: .word 0 @creating a game time variable
 TARGET: .word 0 @creating a target variable
 TARGET_TIME: .word 0 @creating a target time variable
 .equ WIN_DELAY, 0x7A120 @500000 in hex for the blinking of the lights if the player wins
+X_VAL: .word 0 @creating a variable for the X value
+Y_VAL: .word 0 @creating a variable for the Y value
 @this will be getting called from C but we want to call it from the system tick handler
 
 @ Function Declaration : int bc_tile()
@@ -681,6 +683,22 @@ bc_tick:
     @if above 0 store the result back and do stuff or tick another value
     str r0, [r1]
 
+    @call the function to check values of X and Y for the board
+    mov r0, #I2C_Address
+    mov r1, #X_HI @getting the X value first
+    bl COMPASSACCELERO_IO_Read @call to read accelerometer value for X
+    sxtb r0, r0 @turn the 8 bit into a 32 bit for use
+
+    ldr r0, =X_VAL @putting the value into X_VAL
+
+    @now onto getting the Y value
+    mov r0, #I2C_Address
+    mov r1, #Y_HI @getting the Y value second
+    bl COMPASSACCELERO_IO_Read
+    sxtb r0, r0 @turning the 8 bit into 32 bit
+
+    ldr r0, =X_VAL
+
     @right about here we probably call the function to check the value of the accelerometer and return it as a workable
 
     bl accel_to_LED
@@ -698,13 +716,17 @@ accel_to_LED:
  @if x is positive output will be 2, 4, or 6
  @if x is negative output will be 1, 3, or 5
 
-
-
-
- 
-
  @if Y is positive output will be 0, 1, or 2
  @if Y is negative output will be 5, 6, or 7
+
+
+    push {lr}
+
+
+    pop {lr}
+
+
+
 
  @number from -128 to +127 for X and Y to turn into a single LED output
 
