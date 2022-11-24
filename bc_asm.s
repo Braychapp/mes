@@ -870,7 +870,7 @@ game_lose:
 game_win:
     push {r4, r5, lr}
     mov r4, #7 @7 for how many lights
-    mov r5, #4 runs through 4 times
+    mov r5, #4 @runs through 4 times
 
     toggle_loop:
     @runs 4 times
@@ -878,7 +878,7 @@ game_win:
     @ldr r0, [r1]
     @bl busy_delay @delaying the blinking
     mov r0, r4
-    BSP_LED_Toggle
+    bl BSP_LED_Toggle
     subs r4, r4, #1 @take one away from r4
     ble win_loop
 
@@ -890,7 +890,7 @@ game_win:
     ble toggle_loop @go back to toggle the lights if r5 isn't 0
 
     @if it is 0
-    pop {r4, r4, lr}
+    pop {r4, r5, lr}
     bx lr @return
 do_nothing:
     pop {lr}
