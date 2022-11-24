@@ -715,9 +715,10 @@ bc_tick:
     @value for an led between 0 and 7 and if its the same as the target then we would decrement the target led
     ldr r2, =CURRENT_LED
 
+    
 
     @call function to decrement the winning time
-    cmp r0, [r2] @Compare the currently turned on LED to the LED returned from accel_to_LED
+    cmp r0, r1 @Compare the currently turned on LED to the LED returned from accel_to_LED
     beq CORRECT_LED @if the light is the correct one we go into this function to decrement how long the timer needs to be held for
 
     @if the led currently on is WRONG we go into a different function
@@ -824,7 +825,7 @@ CORRECT_LED:
     @these lines deal with manipulating the most recent LED to be turned on
     ldr r1, =CURRENT_LED
     ldr r2, =PREVIOUS_LED
-    ldr r0, r1
+    ldr r0, [r1]
     str r0, [r2]
 
 
@@ -846,7 +847,7 @@ WRONG_LED:
  @these lines deal with manipulating the most recent LED to be turned on
     ldr r1, =CURRENT_LED
     ldr r2, =PREVIOUS_LED
-    ldr r0, r1
+    ldr r0, [r1]
     str r0, [r2]
     pop {r4, lr}
 
