@@ -822,6 +822,7 @@ CORRECT_LED:
     ldr r0, [r1]
     subs r0, r0, #1 @subtracting 1 from the target timer
 
+    mov r0, r4
     @these lines deal with manipulating the most recent LED to be turned on
     ldr r1, =CURRENT_LED
     ldr r2, =PREVIOUS_LED
@@ -847,14 +848,50 @@ WRONG_LED:
  @these lines deal with manipulating the most recent LED to be turned on
     ldr r1, =CURRENT_LED
     ldr r2, =PREVIOUS_LED
+    mov r0, r4
     ldr r0, [r1]
     str r0, [r2]
     pop {r4, lr}
 
 game_lose:
 @empty function currently
-bx lr 
+    ldr r1, =CURRENT_LED
+    ldr r0, [r1]
+    @turn off whatever light is still on
+    bl BSP_LED_Off
 
+    ldr r1, =TARGET
+    ldr r0, [r1] @assigning r0 to be the target to stay on
+    bl BSP_LED_ON
+
+    bx lr 
+
+
+game_win:
+    push {r4, r5, lr}
+    mov r4, #7 @7 for how many lights
+    mov r5, #4 runs through 4 times
+
+    toggle_loop:
+    @runs 4 times
+    @ldr r1, TARGET_TIME @the delay variable passed in at the start of the game
+    @ldr r0, [r1]
+    @bl busy_delay @delaying the blinking
+    mov r0, r4
+    BSP_LED_Toggle
+    subs r4, r4, #1 @take one away from r4
+    ble win_loop
+
+    win_loop: 
+    ldr r1, TARGET_TIME @the delay variable passed in at the start of the game
+    ldr r0, [r1]
+    bl busy_delay @delaying the blinking
+    subs r5, r5, #1
+    ble toggle_loop @go back to toggle the lights if r5 isn't 0
+
+    @if it is 0
+    pop {r4, r4, lr}
+    bx lr @return
 do_nothing:
     pop {lr}
     bx lr
